@@ -55,6 +55,11 @@ Ensuite démarrer le projet, la seule URL qui fonctionne est http://localhost:80
 Pour l'Initialisation j'ai entré cette commande dans un terminal : `ng new demo-front` ensuite j'ai dit "oui" pour le routing et j'ai choisi CSS pour le style.
 
 
+
+Pour ajouter les datatables il y a une installation automatique : `ng add angular-datatables`  
+
+Ou une installation manuel :
+
 A la racine du projet front entrer cette commande pour ajouter des datatables :
 ```sh
 npm install jquery --save
@@ -63,6 +68,24 @@ npm install datatables.net-dt --save
 npm install angular-datatables --save
 npm install @types/jquery --save-dev
 npm install @types/datatables.net --save-dev
+```
+
+Modifier le fichier angular.json pour qu'il intègre ces lignes :
+```json
+"projects": {
+    "your-app-name": {
+      "architect": {
+        "build": {
+          "options": {
+            "styles": [
+              "node_modules/datatables.net-dt/css/jquery.dataTables.css"
+            ],
+            "scripts": [
+              "node_modules/jquery/dist/jquery.js",
+              "node_modules/datatables.net/js/jquery.dataTables.js"
+            ],
+          }
+}
 ```
 
 ## Création du component contenant la page d'accueil
