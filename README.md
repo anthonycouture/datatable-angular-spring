@@ -374,6 +374,10 @@ Voici le code HTML de notre component :
 ```
 Nous retrouvons les options et le trigger de notre dataTable définie dans le code TS du component. Puis une boucle sur le tableau de personne afin de les afficher.
 
+
+Voici le résultat final :
+![Résultat final](img/resultat_final.png)
+
 # Conclusion
 
 Voici un lien pour comprendre les dataTables avec Angular : https://l-lin.github.io/angular-datatables/#/welcome
