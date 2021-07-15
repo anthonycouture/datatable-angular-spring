@@ -1,4 +1,4 @@
-# Initialisation du back (Spring boot)
+# Initialisation du back (API Spring boot)
 
 Téléchargement du back sur le site https://start.spring.io/
 
@@ -51,10 +51,61 @@ Dans le fichier application.properties modifier ces lignes :
 
 Ensuite démarrer le projet, la seule URL qui fonctionne est http://localhost:8080 qui retourne la liste des personnes.
 
+Cette URL retourne :
+```json
+[
+  {
+    "id":1,
+    "nom":"Dupont",
+    "prenom":"Jean",
+    "age":20
+  },
+  {
+    "id":2,
+    "nom":"Dubois",
+    "prenom":"Louis",
+    "age":35
+  },
+  {
+    "id":3,
+    "nom":"Durand",
+    "prenom":"Pierre",
+    "age":45
+  }
+]
+```
+
 # Initialisation du front (Angular 12)
 Pour l'Initialisation j'ai entré cette commande dans un terminal : `ng new demo-front` ensuite j'ai dit "oui" pour le routing et j'ai choisi CSS pour le style.
 
+**Ajouter le HttpClientModule pour les requêtes à l'API**
+Importer HttpClientModule dans le fichier **app.module.ts** :
 
+```ts
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+
+import {AppRoutingModule} from './app-routing.module';
+import {HttpClientModule} from '@angular/common/http';
+import {AppComponent} from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {
+}
+```
+
+Grâce à l'importation de ce module nous pourrons faires des appels à notre API.
 
 **Ajouter les datatables**
 
@@ -72,10 +123,10 @@ npm install @types/jquery --save-dev
 npm install @types/datatables.net --save-dev
 ```
 
-Modifier le fichier angular.json pour qu'il intègre ces lignes :
+Modifier le fichier angular.json pour qu'il intègre ces lignes en supplément de celle déjà présente :
 ```json
 "projects": {
-    "your-app-name": {
+    "front-demo": {
       "architect": {
         "build": {
           "options": {
@@ -142,5 +193,162 @@ const routes: Routes = [
 
 Ensuite démarrer le serveur avec la commande `ng serve` puis accèder à l'URL http://localhost:4200 et il sera écrit "accueil works!" message contenu dans le html du component accueil
 
-## Appeler notre back avec notre front
-`ng generate service personne`
+## Communication front -> back
+Modifier le fichier **environnement.ts** (fichier d'environnement utiliser uniquement en dev si il y en aussi besoin en production il faudra également modifier le fichier environnement.prod.ts qui écrasera le fichier environnement.ts lors d'un build). Cela permettra si besoin de modifier l'url du back de le faire une unique fois pour l'ensemble de l'application.    
+Dans celui-ci ajouter l'URL de notre back :
+```ts
+export const environment = {
+  production: false,
+  urlBack: 'http://localhost:8080'
+};
+```
+
+Comme nous connaissons l'architecture de la réponse de l'API nous allons créer un model correspondant au retour de l'API.  
+Dans le dossier **src/app** créer un dossier **models** et dans celui créer un model dont le fichier s'appelle **personne.ts**:
+```ts
+export class Personne {
+  id: number;
+  nom: string;
+  prenom: string;
+  age: number;
+
+
+  constructor(id: number, nom: string, prenom: string, age: number) {
+    this.id = id;
+    this.nom = nom;
+    this.prenom = prenom;
+    this.age = age;
+  }
+}
+```
+
+Dans le dossier **src/app** créer un dossier **services** et dans celui créer un service personne : `ng generate service personne`  
+Celui-ci permettra d'effectuer les requêtes vers le back pour les personnes.  
+Nous allons grâce la class HttpClient importé avec HttpClientModule précédemment appelé l'url de notre back :
+```ts
+import {Injectable} from '@angular/core';
+import {environment} from "../../environments/environment";
+import {HttpClient} from "@angular/common/http";
+import {Observable} from "rxjs";
+import {Personne} from "../models/personne";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PersonneService {
+
+  private URL = environment.urlBack;
+
+  constructor(private http: HttpClient) {
+  }
+
+  getAllPersonnes(): Observable<Personne[]> {
+    return this.http.get<Personne[]>(this.URL);
+  }
+}
+```
+Nous pouvons voir qu'on utilise environnement c'est où est stocké notre URL de l'API. Sur cette URL nous faison un GET qui renverra un tableau de l'objet Personne créer dans notre front conformément au retour du back.
+
+Dans un premier temps nous allons afficher le retour de cette réponse dans la console du navigateur.  
+Pour cela nous appellons notre service dans notre component accueil et nous faison un console.log(...):
+```ts
+import { Component, OnInit } from '@angular/core';
+import {PersonneService} from "../../services/personne.service";
+
+@Component({
+  selector: 'app-accueil',
+  templateUrl: './accueil.component.html',
+  styleUrls: ['./accueil.component.css']
+})
+export class AccueilComponent implements OnInit {
+
+  constructor(private personneService: PersonneService) { }
+
+  ngOnInit(): void {
+    this.personneService.getAllPersonnes().subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => console.error(error)
+    );
+  }
+}
+```
+
+## Affichage de nos personnes avec dataTable
+Tout cette partie se passe dans le component **accueil**.
+
+Voici le code TS de notre component :
+```ts
+import { Component, OnInit } from '@angular/core';
+import {PersonneService} from "../../services/personne.service";
+import {Personne} from "../../models/personne";
+import {Subject} from "rxjs";
+
+@Component({
+  selector: 'app-accueil',
+  templateUrl: './accueil.component.html',
+  styleUrls: ['./accueil.component.css']
+})
+export class AccueilComponent implements OnInit {
+
+  //Contient la liste des personnes récupérer de l'API pour l'utiliser dans le HTML
+  listPersonne: Personne[] = [];
+
+  // Option de notre dataTables
+  dtOptions: DataTables.Settings = {};
+
+  // Trigger de notre dataTables
+  dtTrigger: Subject<any> = new Subject<any>();
+
+  constructor(private personneService: PersonneService) { }
+
+  ngOnInit(): void {
+    // Init des options de notre dataTables
+    this.dtOptions = {
+      pagingType: 'full_numbers', // type de pagination
+      pageLength: 2 // nom d'élément par page ici 2
+    };
+    // Appel de notre service qui va appeler le bac
+    this.personneService.getAllPersonnes().subscribe(
+      (data) => {
+        console.log(data);
+        // Nous mettons les données dans une variable afin de les utiliser dans le HTML
+        this.listPersonne= data;
+        // Permet de rafraichir la dataTable
+        this.dtTrigger.next();
+      },
+      (error) => console.error(error)
+    );
+  }
+}
+```
+
+Voici le code HTML de notre component :
+```html
+<table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border">
+  <thead>
+  <tr>
+    <th>id</th>
+    <th>nom</th>
+    <th>prenom</th>
+    <th>age</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let personne of listPersonne">
+    <td>{{personne.id}}</td>
+    <td>{{personne.nom}}</td>
+    <td>{{personne.prenom}}</td>
+    <td>{{personne.age}}</td>
+  </tr>
+  </tbody>
+</table>
+```
+Nous retrouvons les options et le trigger de notre dataTable définie dans le code TS du component. Puis une boucle sur le tableau de personne afin de les afficher.
+
+# Conclusion
+
+Voici un lien pour comprendre les dataTables avec Angular : https://l-lin.github.io/angular-datatables/#/welcome
+
+Dans l'API je retourne directement l'entité par le controlleur celle-ci est une mauvaise pratique car peut être qu'il y aurait des données confidentiels qui ne doivent pas sortir (exemple: mot de passe) pour éviter cela utiliser un DTO sur l'entité personne afin de retourner que les données voulues.
