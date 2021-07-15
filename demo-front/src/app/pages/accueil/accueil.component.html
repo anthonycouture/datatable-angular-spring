@@ -1,0 +1,18 @@
+<table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border">
+  <thead>
+  <tr>
+    <th>id</th>
+    <th>nom</th>
+    <th>prenom</th>
+    <th>age</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let personne of listPersonne">
+    <td>{{personne.id}}</td>
+    <td>{{personne.nom}}</td>
+    <td>{{personne.prenom}}</td>
+    <td>{{personne.age}}</td>
+  </tr>
+  </tbody>
+</table>
