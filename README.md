@@ -56,7 +56,9 @@ Pour l'Initialisation j'ai entré cette commande dans un terminal : `ng new demo
 
 
 
-Pour ajouter les datatables il y a une installation automatique : `ng add angular-datatables`  
+**Ajouter les datatables**
+
+il y a une installation automatique : `ng add angular-datatables`  
 
 Ou une installation manuel :
 
@@ -84,9 +86,39 @@ Modifier le fichier angular.json pour qu'il intègre ces lignes :
               "node_modules/jquery/dist/jquery.js",
               "node_modules/datatables.net/js/jquery.dataTables.js"
             ],
+						...
           }
 }
 ```
+
+Importer DataTablesModule dans le fichier **app.module.ts** :
+```ts
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+
+import {AppRoutingModule} from './app-routing.module';
+import {HttpClientModule} from '@angular/common/http';
+import {DataTablesModule} from "angular-datatables";
+import {AppComponent} from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    DataTablesModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {
+}
+```
+
+Voila dataTables est installé sur notre application angular.
 
 ## Création du component contenant la page d'accueil
 
