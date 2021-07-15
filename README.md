@@ -27,6 +27,33 @@ Donc cela à rajouter ces dépendances au pom.xml:
 </dependency>
 ```
 
+Dans le code nous avons également configurer les CORS sur la totalité de l'application car sinon le front ne pourra pas communiquer avec le back car 2 urls différentes, pour cela il faut configurer le CORS pour accepter les requêtes venant de http://localhost:4200 qui est l'url du front en développement :
+```java
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Component
+public class WebMvcConfigurerConfig {
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry
+                        .addMapping("/**")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedOrigins("http://localhost:4200");
+            }
+        };
+    }
+}
+```
+
 Dans la base de données créer la table personne avec des personnes :
 ```sql
 create table personne
