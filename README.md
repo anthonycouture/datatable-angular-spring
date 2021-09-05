@@ -383,3 +383,34 @@ Voici le résultat final :
 Voici un lien pour comprendre les dataTables avec Angular : https://l-lin.github.io/angular-datatables/#/welcome
 
 Dans l'API je retourne directement l'entité par le controlleur celle-ci est une mauvaise pratique car peut être qu'il y aurait des données confidentiels qui ne doivent pas sortir (exemple: mot de passe) pour éviter cela utiliser un DTO sur l'entité personne afin de retourner que les données voulues.
+
+
+# Dockerfile
+
+## postgresql
+```sh
+docker pull postgres
+docker run --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=db -p 5432:5432 -d postgres
+```
+
+## back
+Commande a éxécuter dans le dossier **demo-back**
+```
+docker build -t back .
+docker run --name back -p 8080:8080 -d back
+```
+
+Pour que cela fonctione j'ai modifié le fichier de properties pour avoir les variables d'environnement, vive les variables d'environnement !!!!
+
+## front
+Commande a éxécuter dans le dossier **demo-front**
+```
+docker build -t front .
+docker run --name front -p 80:80 -d front
+```
+
+## Conclusion
+Inconvéniant, la communication entre container.  
+Entre le font et le back pas de problème car le navigateur qui fait les requêtes.  
+Mais entre le back et la BDD il faut connaitre l'IP est non localhost car sinon sa ne marche pas et celle-ci change donc c'est pas top sinon il faudrait créer un network pour les connecter.  
+Pour une application entière comme ici le mieux serait d'utiliser Docker compose.

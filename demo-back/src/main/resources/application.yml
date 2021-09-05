@@ -1,0 +1,19 @@
+# ici validate pour dire que la bdd doit correspondre aux entity
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: true
+  sql:
+    init:
+      mode: always
+    platform: postgres
+  datasource:
+    url: jdbc:postgresql://${DB_URL:localhost:5432}/${DB:postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PWD:password}
+
+url-front: ${URL_FRONT:http://localhost:4200}

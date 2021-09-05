@@ -8,6 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Component
 public class WebMvcConfigurerConfig {
 
+    private String urlFront;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -16,9 +18,15 @@ public class WebMvcConfigurerConfig {
                 registry
                         .addMapping("/**")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedOrigins("http://localhost:4200");
+                        .allowedOrigins(urlFront);
             }
         };
+    }
+
+
+    @Value("${url-front}")
+    public void setUrlFront(String urlFront){
+        this.urlFront = urlFront;
     }
 }
 
