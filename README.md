@@ -414,3 +414,17 @@ Inconvéniant, la communication entre container.
 Entre le font et le back pas de problème car le navigateur qui fait les requêtes.  
 Mais entre le back et la BDD il faut connaitre l'IP est non localhost car sinon sa ne marche pas et celle-ci change donc c'est pas top sinon il faudrait créer un network pour les connecter.  
 Pour une application entière comme ici le mieux serait d'utiliser Docker compose.
+
+# Docker compose
+Commande a éxécuter à la racine du projet
+```sh
+# start
+docker-compose -f app.yml up -d
+# stop et suppression des volumes
+docker-compose -f app.yml down -v
+```
+
+## Conclusion
+Avantages, tout se passe avec une seule commande, un réseau est créé entre les containers (ici la bdd est inacessible de l'extérieur et pourtant le back y a accès) et l'ensemble des variables environnement etc est centralisé. 
+
+On pourrait améliorer cela en partageant un répertoire pour stocker la bdd afin qu'elle ne soit pas supprimé à chaque fois (ou ne pas supprimer les volumes mais par nettoyage on pourrait vite les supprimer).
